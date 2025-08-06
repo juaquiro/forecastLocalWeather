@@ -9,6 +9,10 @@ __pycache__/
 # app logs
 logs/
 
+# credentials
+*.key
+.gitcredentials
+
 # Distribution / packaging
 .Python
 build/
