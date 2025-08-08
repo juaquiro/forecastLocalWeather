@@ -1,2 +1,2 @@
 # AQ 8AUG25 this is the toga version of last pyto instalation in my iphone 
-toga==0.3.dev29
+toga==0.5.0
