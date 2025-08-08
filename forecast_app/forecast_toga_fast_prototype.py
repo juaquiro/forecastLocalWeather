@@ -5,7 +5,7 @@ A simple Toga app to log mountain weather data
 ---------------------------------------------------------------
 • Records readings → TREND = BETTER / STABLE / WORSE.
 • When you tap “New session” or “Exit” the current log is
-  written to  ~/Documents/MountainForecastLogs/session_YYYYMMDD_HHMMSS.txt
+  written to  ~/Documents/Forecast_App_Logs/session_YYYYMMDD_HHMMSS.txt
   (a folder the sandbox can always write to).
 """
 
@@ -15,7 +15,7 @@ import toga
 from toga.style.pack import COLUMN, ROW, LEFT, Pack
 
 # ---------- safe log directory inside the sandbox --------------
-LOG_DIR = Path.home() / "Documents" / "Forecas_App_Logs"
+LOG_DIR = Path.home() / "Documents" / "Forecast_App_Logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 # ---------- forecast logic -------------------------------------
