@@ -1,2 +1,2 @@
-# AQ 8AUG25 this is the toga version of last pyto instalation in my iphone 
+ # AQ 8AUG25 last toga version is 0.5.3 and pyto toga version is 0.3 however 0.5.0 allows running the app in both dev envs
 toga==0.5.0
