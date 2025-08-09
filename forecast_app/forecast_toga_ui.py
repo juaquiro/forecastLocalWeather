@@ -1,17 +1,23 @@
 # Toga UI: wires inputs/buttons to the forecast + logging utilities.
 
-import sys
+import os, sys
 import datetime as dt
 import toga
 from toga.style.pack import COLUMN, ROW, LEFT, Pack
 
-# Support both "package" and "loose files in same folder" imports:
-try:
-    from .forecast import forecast
-    from .forecast_logger import save_log
-except ImportError:
-    from forecast import forecast
-    from forecast_logger import save_log
+WD_Folder = os.path.dirname(os.path.abspath(__file__))   # Working Dir folder of forecast_ui.py
+PARENT_Folder = os.path.dirname(WD_Folder)                      # repo root (one level up)
+
+# 1) Make the package importable no matter the current working dir:
+if PARENT_Folder not in sys.path:
+    sys.path.insert(0, PARENT_Folder)
+
+# 2) (Optional but helpful) make the working directory the UI file's folder:
+os.chdir(WD_Folder)
+
+# Now absolute, package-style imports will work reliably:
+from forecast_app.forecast import forecast
+from forecast_app.forecast_logger import save_log
 
 def build(app):
     session = []  # lives in this closure
