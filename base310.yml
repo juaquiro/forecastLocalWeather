@@ -32,5 +32,6 @@ dependencies:
       - toga==0.5.0
       - toga-core==0.5.0
       - toga-winforms==0.5.0
+      - tomli==2.2.1
       - travertino==0.5.0
 prefix: C:\Users\juaqu\.conda\envs\base310
