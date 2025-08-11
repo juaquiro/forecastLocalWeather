@@ -19,6 +19,23 @@ os.chdir(WD_Folder)
 from forecast_app.forecast import forecast
 from forecast_app.forecast_logger import save_log
 
+# LOAD CONFIG
+from forecast_app.config_loader import load_config, get, path_in_docs, atmosphere_constants_SI
+cfg = load_config()
+atm = atmosphere_constants_SI(cfg)
+
+# Examples:
+threshold = get(cfg, "forecast.constants.dew_spread_threshold", 2.0)
+need_n    = get(cfg, "forecast.constants.min_samples_for_forecast", 2)
+
+log_dir = path_in_docs(get(cfg, "app.log_dir", "MountainForecastLogs"))
+# Pass `threshold` into your algorithm; use `log_dir` in your logger.
+
+# If you want to show help text somewhere:
+desc = get(cfg, "descriptions.forecast.constants.dew_spread_threshold")
+
+
+
 def build(app):
     session = []  # lives in this closure
 

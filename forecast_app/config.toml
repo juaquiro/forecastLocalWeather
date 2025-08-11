@@ -1,0 +1,60 @@
+# -------------------------------------------------------------------
+# Mountain Forecast — runtime configuration
+# Edit in Files.app. Comments are allowed. Values reload on launch.
+# -------------------------------------------------------------------
+
+[app]
+# Where logs are written (relative paths resolved under ~/Documents)
+log_dir = "MountainForecastLogs"
+
+[forecast.constants]
+dew_spread_threshold = 2.0              # °C widening to call BETTER
+min_samples_for_forecast = 2            # Require at least 2 readings
+
+[ml]
+enabled = false
+model_path = "models/naive.joblib"      # Example; not required for Pyto
+desc = "Toggle/use ML-based trend; if disabled, use heuristic."
+
+[ml.params]
+window_minutes = 30
+min_points = 6
+
+# Optional: central place for displayable descriptions of simple keys
+[descriptions.forecast.constants]
+dew_spread_threshold = "Minimum widening (°C) to signal BETTER"
+min_samples_for_forecast = "Minimum readings before showing a trend"
+
+# -------------------------------------------------------------------
+# U.S. Standard Atmosphere (troposphere) constants
+# Units are explicit; convert as needed in code.
+# -------------------------------------------------------------------
+[atmosphere.T0]
+value = 288.15
+unit  = "K"
+desc  = "Reference temperature at sea level (0 km)."
+
+[atmosphere.L0]
+value = -6.5
+unit  = "K/km"
+desc  = "Temperature lapse rate in the troposphere."
+
+[atmosphere.P0]
+value = 101325
+unit  = "Pa"
+desc  = "Reference pressure at sea level."
+
+[atmosphere.R]
+value = 8.31432e3
+unit  = "N·m/(kmol·K)"
+desc  = "Universal gas constant (per kmol)."
+
+[atmosphere.M0]
+value = 28.9644
+unit  = "kg/kmol"
+desc  = "Molar mass of dry air."
+
+[atmosphere.H0]
+value = 0.0
+unit  = "km"
+desc  = "Reference geopotential height."
