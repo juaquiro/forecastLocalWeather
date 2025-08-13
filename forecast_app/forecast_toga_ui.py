@@ -3,7 +3,8 @@
 import os, sys
 import datetime as dt
 import toga
-from toga.style.pack import COLUMN, ROW, LEFT, Pack
+from toga.style.pack import COLUMN, ROW, LEFT, Pack, CENTER
+from toga.colors import rgb, WHITE, BLACK
 
 WD_Folder = os.path.dirname(os.path.abspath(__file__))   # Working Dir folder of forecast_ui.py
 PARENT_Folder = os.path.dirname(WD_Folder)                      # repo root (one level up)
@@ -39,12 +40,31 @@ desc = get(cfg, "descriptions.forecast.constants.dew_spread_threshold")
 def build(app):
     session = []  # lives in this closure
 
+    # --- color palette for buttons (good contrast on iOS) ---
+    BTN_PRIMARY_BG = rgb(37, 99, 235)   # blue
+    BTN_SECOND_BG  = rgb(107, 114, 128) # gray
+    BTN_DANGER_BG  = rgb(220, 38, 38)   # red
+    BANNER_NEUTRAL = rgb(31, 41, 55)     # dark slate
+    BANNER_GOOD    = rgb(16,185,129)     # green
+    BANNER_BAD     = rgb(220, 38, 38)    # red
+    BTN_TXT        = WHITE
+
+
     # -- widgets
     alt_in  = toga.TextInput(placeholder="Altitude (m)")
     temp_in = toga.TextInput(placeholder="Temp (°C)")
     dew_in  = toga.TextInput(placeholder="Dew-pt (°C)")
     rh_in   = toga.TextInput(placeholder="Humidity (%)")
-    trend_lbl = toga.Label("No data yet", style=Pack(padding_top=10))
+    
+    # create a bold, centered banner label
+    trend_lbl = toga.Label(
+    "No data yet",
+    style=Pack(
+        padding_top=12, padding_bottom=12, padding_left=10, padding_right=10,
+        background_color=BANNER_NEUTRAL, color=BTN_TXT,
+        text_align=CENTER, font_size=18
+        )
+    )
 
     # -- callbacks
     def add_reading(widget):
@@ -60,7 +80,16 @@ def build(app):
             trend_lbl.text = "Fill all 4 numbers"
             return
         session.append(reading)
-        trend_lbl.text = f"Trend: {forecast(session)}   ({len(session)} readings)"
+
+        # update the banner color when you compute the trend
+        trend = forecast(session)
+        trend_lbl.text = f"Trend: {trend}   ({len(session)} readings)"
+        if trend == "BETTER":
+            trend_lbl.style.update(background_color=BANNER_GOOD)
+        elif trend == "WORSE":
+            trend_lbl.style.update(background_color=BANNER_BAD)
+        else:  # "STABLE" or "NEED MORE DATA"
+            trend_lbl.style.update(background_color=BANNER_NEUTRAL)
 
     def new_session(widget):
         log = save_log(session, app.main_window)
@@ -95,12 +124,40 @@ def build(app):
     ]:
         box.add(row(inp, cap))
 
+    # --- buttons row ---
     buttons = toga.Box(style=Pack(direction=ROW, padding=8))
-    buttons.add(toga.Button("Add reading", on_press=add_reading, style=Pack(flex=1, padding_right=5)))
-    buttons.add(toga.Button("New session", on_press=new_session, style=Pack(flex=1, padding_left=5)))
+    add_btn = toga.Button(
+        "Add reading",
+        on_press=add_reading,
+        style=Pack(
+            flex=1, padding=10, padding_right=5,
+            background_color=BTN_PRIMARY_BG, color=BTN_TXT
+        ),
+    )
+    new_btn = toga.Button(
+        "New session",
+        on_press=new_session,
+        style=Pack(
+            flex=1, padding=10, padding_left=5,
+            background_color=BTN_SECOND_BG, color=BTN_TXT
+        ),
+    )
+    buttons.add(add_btn)
+    buttons.add(new_btn)
     box.add(buttons)
 
-    box.add(toga.Button("Exit", on_press=quit_app, style=Pack(padding=8)))
+
+    # --- exit button as a full-width danger button ---
+    exit_btn = toga.Button(
+        "Exit",
+        on_press=quit_app,
+        style=Pack(
+            padding=10, background_color=BTN_DANGER_BG, color=BTN_TXT
+        ),
+    )
+    box.add(exit_btn)
+
+
     box.add(trend_lbl)
     return box
 
