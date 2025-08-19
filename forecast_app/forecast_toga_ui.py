@@ -36,35 +36,54 @@ log_dir = path_in_docs(get(cfg, "app.log_dir", "MountainForecastLogs"))
 desc = get(cfg, "descriptions.forecast.constants.dew_spread_threshold")
 
 
-
 def build(app):
     session = []  # lives in this closure
 
-    # --- color palette for buttons (good contrast on iOS) ---
-    BTN_PRIMARY_BG = rgb(37, 99, 235)   # blue
-    BTN_SECOND_BG  = rgb(107, 114, 128) # gray
-    BTN_DANGER_BG  = rgb(220, 38, 38)   # red
-    BANNER_NEUTRAL = rgb(31, 41, 55)     # dark slate
-    BANNER_GOOD    = rgb(16,185,129)     # green
-    BANNER_BAD     = rgb(220, 38, 38)    # red
-    BTN_TXT        = WHITE
-
+    # --- palette (chosen for good visibility on iOS) ---
+    PAGE_BG         = rgb(245, 247, 250)  # light gray app background
+    OUTLINE_PRIMARY = rgb(37, 99, 235)    # blue outline
+    OUTLINE_SECOND  = rgb(107, 114, 128)  # gray outline
+    OUTLINE_DANGER  = rgb(220, 38, 38)    # red outline
+    BANNER_NEUTRAL  = rgb(31, 41, 55)     # dark slate
+    BANNER_GOOD     = rgb(16, 185, 129)   # green
+    BANNER_BAD      = rgb(220, 38, 38)    # red
 
     # -- widgets
     alt_in  = toga.TextInput(placeholder="Altitude (m)")
     temp_in = toga.TextInput(placeholder="Temp (°C)")
     dew_in  = toga.TextInput(placeholder="Dew-pt (°C)")
     rh_in   = toga.TextInput(placeholder="Humidity (%)")
-    
-    # create a bold, centered banner label
+
+    # Bold, centered banner label for the trend
     trend_lbl = toga.Label(
-    "No data yet",
-    style=Pack(
-        padding_top=12, padding_bottom=12, padding_left=10, padding_right=10,
-        background_color=BANNER_NEUTRAL, color=BTN_TXT,
-        text_align=CENTER, font_size=18
+        "No data yet",
+        style=Pack(
+            padding_top=12, padding_bottom=12, padding_left=10, padding_right=10,
+            background_color=BANNER_NEUTRAL, color=WHITE,
+            text_align=CENTER, font_size=18
         )
     )
+
+    # Helper: a visible 'outlined' button constructed from Boxes.
+    # The inner Button provides the tap behavior; the colored outer Box is the border.
+    def outlined_button(text, on_press, border_color, *, page_bg, flex=1, left_pad=0, right_pad=0):
+        wrapper = toga.Box(style=Pack(direction=ROW, flex=flex,
+                                      padding_left=left_pad, padding_right=right_pad))
+        border = toga.Box(style=Pack(background_color=border_color, padding=2, flex=1))
+        fill   = toga.Box(style=Pack(background_color=page_bg, flex=1))
+        btn    = toga.Button(
+            text,
+            on_press=on_press,
+            style=Pack(
+                color=border_color,
+                padding_top=10, padding_bottom=10,
+                padding_left=12, padding_right=12
+            )
+        )
+        fill.add(btn)
+        border.add(fill)
+        wrapper.add(border)
+        return wrapper
 
     # -- callbacks
     def add_reading(widget):
@@ -78,6 +97,7 @@ def build(app):
             }
         except ValueError:
             trend_lbl.text = "Fill all 4 numbers"
+            trend_lbl.style.update(background_color=BANNER_NEUTRAL)
             return
         session.append(reading)
 
@@ -97,6 +117,7 @@ def build(app):
         for box in (alt_in, temp_in, dew_in, rh_in):
             box.value = ""
         trend_lbl.text = "New session started" + (f" – saved {log}" if log else "")
+        trend_lbl.style.update(background_color=BANNER_NEUTRAL)
 
     def quit_app(widget):
         save_log(session, app.main_window)
@@ -115,7 +136,7 @@ def build(app):
         return r
 
     # -- assemble UI
-    box = toga.Box(style=Pack(direction=COLUMN, padding=10))
+    box = toga.Box(style=Pack(direction=COLUMN, padding=10, background_color=PAGE_BG))
     for inp, cap in [
         (alt_in,  "Altitude (m)"),
         (temp_in, "Temp (°C)"),
@@ -124,45 +145,25 @@ def build(app):
     ]:
         box.add(row(inp, cap))
 
-    # --- buttons row ---
+    # --- buttons row: outlined buttons ---
     buttons = toga.Box(style=Pack(direction=ROW, padding=8))
-    add_btn = toga.Button(
-        "Add reading",
-        on_press=add_reading,
-        style=Pack(
-            flex=1, padding=10, padding_right=5,
-            background_color=BTN_PRIMARY_BG, color=BTN_TXT
-        ),
-    )
-    new_btn = toga.Button(
-        "New session",
-        on_press=new_session,
-        style=Pack(
-            flex=1, padding=10, padding_left=5,
-            background_color=BTN_SECOND_BG, color=BTN_TXT
-        ),
-    )
-    buttons.add(add_btn)
-    buttons.add(new_btn)
+    buttons.add(outlined_button("Add reading", add_reading, OUTLINE_PRIMARY, page_bg=PAGE_BG, right_pad=5))
+    buttons.add(outlined_button("New session", new_session, OUTLINE_SECOND,  page_bg=PAGE_BG, left_pad=5))
     box.add(buttons)
 
+    # --- exit as full-width outlined button ---
+    exit_row = toga.Box(style=Pack(direction=ROW, padding_left=8, padding_right=8, padding_bottom=8))
+    exit_row.add(outlined_button("Exit", quit_app, OUTLINE_DANGER, page_bg=PAGE_BG, flex=1))
+    box.add(exit_row)
 
-    # --- exit button as a full-width danger button ---
-    exit_btn = toga.Button(
-        "Exit",
-        on_press=quit_app,
-        style=Pack(
-            padding=10, background_color=BTN_DANGER_BG, color=BTN_TXT
-        ),
-    )
-    box.add(exit_btn)
-
-
+    # Trend banner at the bottom
     box.add(trend_lbl)
     return box
 
+
 def main():
     return toga.App("Mountain Forecast", "org.example.mountain_forecast", startup=build)
+
 
 if __name__ == "__main__":
     main().main_loop()
