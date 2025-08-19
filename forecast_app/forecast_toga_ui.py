@@ -48,7 +48,6 @@ def build(app):
     BANNER_GOOD    = rgb(16,185,129)     # green
     BANNER_BAD     = rgb(220, 38, 38)    # red
     BTN_TXT        = WHITE
-    PAGE_BG = rgb(245, 247, 250)  # light gray that makes system text-buttons stand out
 
 
     # -- widgets
@@ -116,7 +115,7 @@ def build(app):
         return r
 
     # -- assemble UI
-    box = toga.Box(style=Pack(direction=COLUMN, padding=10, background_color=PAGE_BG))
+    box = toga.Box(style=Pack(direction=COLUMN, padding=10))
     for inp, cap in [
         (alt_in,  "Altitude (m)"),
         (temp_in, "Temp (°C)"),
